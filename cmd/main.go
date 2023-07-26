@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/MihaiLupoiu/MegaverseAPIClient/megaverse"
+	"github.com/MihaiLupoiu/MegaverseAPIClient/megaverse/astral"
 )
 
 func main() {
@@ -31,4 +32,69 @@ func main() {
 	}
 
 	fmt.Println(res2)
+
+	polyanet := astral.Polyanet{
+		Row:         0,
+		Column:      0,
+		CandidateId: candidateID,
+	}
+
+	err = client.Astral.Generate(ctx, polyanet)
+	if err != nil {
+		fmt.Println("Error Generating astral object:", err)
+	}
+
+	cometh := astral.Cometh{
+		Row:         1,
+		Column:      1,
+		CandidateId: candidateID,
+		Direction:   "up",
+	}
+
+	err = client.Astral.Generate(ctx, cometh)
+	if err != nil {
+		fmt.Println("Error Generating astral object:", err)
+	}
+
+	soloon := astral.Soloon{
+		Row:         2,
+		Column:      2,
+		CandidateId: candidateID,
+		Color:       "red",
+	}
+
+	err = client.Astral.Generate(ctx, soloon)
+	if err != nil {
+		fmt.Println("Error Generating astral object:", err)
+	}
+
+	res, err = client.Astral.GetMap(ctx)
+	if err != nil {
+		fmt.Println("Error getting map:", err)
+	}
+
+	fmt.Println(res)
+
+	err = client.Astral.Delete(ctx, polyanet)
+	if err != nil {
+		fmt.Println("Error Deleting astral object:", err)
+	}
+
+	err = client.Astral.Delete(ctx, cometh)
+	if err != nil {
+		fmt.Println("Error Deleting astral object:", err)
+	}
+
+	err = client.Astral.Delete(ctx, soloon)
+	if err != nil {
+		fmt.Println("Error Deleting astral object:", err)
+	}
+
+	res, err = client.Astral.GetMap(ctx)
+	if err != nil {
+		fmt.Println("Error getting map:", err)
+	}
+
+	fmt.Println(res)
+
 }

@@ -2,6 +2,7 @@ package megaverse
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,12 +11,15 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/google/uuid"
+	"golang.org/x/time/rate"
 )
 
 const (
 	// TODO: [improvement] API should have version. e.g: "https://challenge.crossmint.io/v1/api/"
-	defaultBaseURL = "https://challenge.crossmint.io/"
-	defaultTimeout = time.Duration(3) * time.Second
+	defaultBaseURL   = "https://challenge.crossmint.io/"
+	defaultTimeout   = time.Duration(3) * time.Second
+	defaultRateLimit = 20 // Maximum number of requests per second
+
 )
 
 type service struct {
@@ -24,7 +28,9 @@ type service struct {
 
 // A Client manages communication with the Megaverse API.
 type Client struct {
-	client      *http.Client
+	client  *http.Client
+	limiter *rate.Limiter
+
 	BaseURL     *url.URL
 	CandidateID uuid.UUID
 
@@ -40,6 +46,8 @@ func NewClient(candidateID string, httpClient *http.Client) (*Client, error) {
 	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
+	limiter := rate.NewLimiter(rate.Limit(defaultRateLimit), 1)
+
 	// TODO: Add ability to change the baseURL
 	baseURL, err := url.Parse(defaultBaseURL)
 	if err != nil {
@@ -50,8 +58,10 @@ func NewClient(candidateID string, httpClient *http.Client) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	c := &Client{
 		client:      httpClient,
+		limiter:     limiter,
 		BaseURL:     baseURL,
 		CandidateID: candID,
 	}
@@ -65,8 +75,6 @@ func NewClient(candidateID string, httpClient *http.Client) (*Client, error) {
 func (c *Client) newRequest(method, path string, payload interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.BaseURL.ResolveReference(rel)
-
-	fmt.Println(u.String())
 
 	var body []byte
 	if payload != nil {
@@ -89,6 +97,11 @@ func (c *Client) newRequest(method, path string, payload interface{}) (*http.Req
 func (c *Client) doRequest(req *http.Request) (*http.Response, error) {
 	var resp *http.Response
 	var err error
+
+	err = c.limiter.Wait(context.Background())
+	if err != nil {
+		return nil, err
+	}
 
 	reqOperation := func() error {
 		if resp != nil {
