@@ -27,7 +27,7 @@ func (as *AstralService) Delete(
 	astralObject astral.AstralObject,
 ) error {
 	endpoint := astralObject.GetEndpoint()
-	payload := astralObject.GetCoordinates()
+	payload := astralObject.GetPayload()
 
 	return as.executeRequest(ctx, http.MethodDelete, endpoint, payload, nil)
 }

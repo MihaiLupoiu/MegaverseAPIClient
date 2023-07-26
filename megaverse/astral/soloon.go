@@ -18,10 +18,6 @@ type Soloon struct {
 	Color       ColorType `json:"color"`
 }
 
-func (s Soloon) GetCoordinates() interface{} {
-	return s
-}
-
 func (s Soloon) GetEndpoint() string {
 	return defaultSoloonEndpoint
 }

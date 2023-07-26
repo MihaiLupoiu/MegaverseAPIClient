@@ -8,10 +8,6 @@ type Polyanet struct {
 	CandidateId string `json:"candidateId"`
 }
 
-func (p Polyanet) GetCoordinates() interface{} {
-	return p
-}
-
 func (p Polyanet) GetEndpoint() string {
 	return defaultPolyanetEndpoint
 }

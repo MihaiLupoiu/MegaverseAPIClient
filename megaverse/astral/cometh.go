@@ -18,10 +18,6 @@ type Cometh struct {
 	Direction   DirectionType `json:"direction"`
 }
 
-func (c Cometh) GetCoordinates() interface{} {
-	return c
-}
-
 func (c Cometh) GetEndpoint() string {
 	return defaultComethEndpoint
 }

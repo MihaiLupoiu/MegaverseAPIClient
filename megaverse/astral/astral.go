@@ -1,12 +1,12 @@
 package astral
 
-type Coordinates struct {
-	Row    int `json:"row"`
-	Column int `json:"column"`
+type BasicAstralObject struct {
+	Row         int    `json:"row"`
+	Column      int    `json:"column"`
+	CandidateId string `json:"candidateId"`
 }
 
 type AstralObject interface {
-	GetCoordinates() interface{}
 	GetEndpoint() string
 	GetPayload() interface{}
 }
