@@ -17,7 +17,7 @@ func (as *AstralService) Generate(
 	astralObject astral.AstralObject,
 ) error {
 	endpoint := astralObject.GetEndpoint()
-	payload := astralObject.GetPayload()
+	payload := astralObject.GetPayload(as.client.CandidateID)
 
 	return as.executeRequest(ctx, http.MethodPost, endpoint, payload, nil)
 }
@@ -27,7 +27,7 @@ func (as *AstralService) Delete(
 	astralObject astral.AstralObject,
 ) error {
 	endpoint := astralObject.GetEndpoint()
-	payload := astralObject.GetPayload()
+	payload := astralObject.GetPayload(as.client.CandidateID)
 
 	return as.executeRequest(ctx, http.MethodDelete, endpoint, payload, nil)
 }

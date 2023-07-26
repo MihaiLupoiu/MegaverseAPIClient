@@ -33,35 +33,21 @@ func main() {
 
 	fmt.Println(res2)
 
-	polyanet := astral.Polyanet{
-		Row:         0,
-		Column:      0,
-		CandidateId: candidateID,
-	}
+	polyanet := astral.NewPolyanet(0, 0)
 
 	err = client.Astral.Generate(ctx, polyanet)
 	if err != nil {
 		fmt.Println("Error Generating astral object:", err)
 	}
 
-	cometh := astral.Cometh{
-		Row:         1,
-		Column:      1,
-		CandidateId: candidateID,
-		Direction:   "up",
-	}
+	cometh := astral.NewCometh(0, 1, astral.Cometh_Up)
 
 	err = client.Astral.Generate(ctx, cometh)
 	if err != nil {
 		fmt.Println("Error Generating astral object:", err)
 	}
 
-	soloon := astral.Soloon{
-		Row:         2,
-		Column:      2,
-		CandidateId: candidateID,
-		Color:       "red",
-	}
+	soloon := astral.NewSoloon(0, 2, astral.Soloon_Red)
 
 	err = client.Astral.Generate(ctx, soloon)
 	if err != nil {
