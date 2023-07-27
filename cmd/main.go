@@ -74,7 +74,8 @@ func executePhase2() {
 		fmt.Println("Error getting goal map:", err)
 	}
 
-	cleanMap(client, ctx, goalMap)
+	// TODO: get my current map to compare with the goal and delete astral object if there should not be anything.
+	// 	res, err := client.Astral.GetMap(ctx)
 
 	for row, columns := range goalMap.Goal {
 		for column, astralType := range columns {
@@ -82,6 +83,10 @@ func executePhase2() {
 			if astralObject != nil {
 				log.Println(row, column, astralType)
 				log.Printf("Astral Object: %+v\n", createAstralObject(astralType, row, column))
+				err = client.Astral.Generate(ctx, astralObject)
+				if err != nil {
+					log.Println("Error Generating astral object:", err)
+				}
 			}
 		}
 	}

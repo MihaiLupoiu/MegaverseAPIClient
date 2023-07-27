@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -15,11 +16,8 @@ import (
 )
 
 const (
-	// TODO: [improvement] API should have version. e.g: "https://challenge.crossmint.io/v1/api/"
 	defaultBaseURL   = "https://challenge.crossmint.io/"
-	defaultTimeout   = time.Duration(3) * time.Second
-	defaultRateLimit = 20 // Maximum number of requests per second
-
+	defaultRateLimit = 1 // Maximum number of requests per second
 )
 
 type service struct {
@@ -103,22 +101,30 @@ func (c *Client) doRequest(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
+	notify := func(err error, next time.Duration) {
+		log.Printf("Retrying request in %s due to error: %v\n", next, err)
+	}
+
 	reqOperation := func() error {
+		log.Println("Do request:", req.URL, req.Method)
 		if resp != nil {
 			resp.Body.Close()
 		}
 
 		resp, err = c.client.Do(req)
 		if err != nil || resp.StatusCode >= http.StatusInternalServerError {
-			return fmt.Errorf("request failed")
+			return fmt.Errorf("request failed error: %d", resp.StatusCode)
+		}
+
+		if resp.StatusCode == http.StatusTooManyRequests {
+			return fmt.Errorf("rate-limiting error: %d", resp.StatusCode)
 		}
 		return nil
 	}
 
+	// TODO: add option to change the backoff configuration.
 	backoffConfig := backoff.NewExponentialBackOff()
-	backoffConfig.MaxElapsedTime = defaultTimeout
-
-	retryErr := backoff.Retry(reqOperation, backoffConfig)
+	retryErr := backoff.RetryNotify(reqOperation, backoffConfig, notify)
 	if retryErr != nil {
 		return nil, retryErr
 	}
