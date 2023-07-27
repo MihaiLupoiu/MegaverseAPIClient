@@ -1,6 +1,11 @@
 package astral
 
-import "github.com/google/uuid"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/google/uuid"
+)
 
 const defaultSoloonEndpoint = "/api/soloons"
 
@@ -11,6 +16,15 @@ const (
 	Soloon_Red    ColorType = "red"
 	Soloon_Purple ColorType = "purple"
 	Soloon_White  ColorType = "white"
+)
+
+var (
+	ColorMap = map[string]ColorType{
+		"blue":   Soloon_Blue,
+		"red":    Soloon_Red,
+		"purple": Soloon_Purple,
+		"white":  Soloon_White,
+	}
 )
 
 type Soloon struct {
@@ -46,4 +60,14 @@ func (s Soloon) GetPayload(candidateId uuid.UUID) interface{} {
 		Color:       s.Color,
 		CandidateId: candidateId.String(),
 	}
+}
+
+// ParseStringToColorType parses a string and returns the corresponding ColorType.
+// It returns an error if the string cannot be parsed.
+func StringToColorType(str string) (ColorType, error) {
+	c, ok := ColorMap[strings.ToLower(str)]
+	if !ok {
+		return c, fmt.Errorf(`cannot parse:[%s] as ColorType`, str)
+	}
+	return c, nil
 }

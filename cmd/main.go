@@ -74,14 +74,15 @@ func executePhase2() {
 		fmt.Println("Error getting goal map:", err)
 	}
 
-	astralMap := make([][]astral.AstralObject, len(goalMap.Goal))
-	for row := range astralMap {
-		astralMap[row] = make([]astral.AstralObject, len(goalMap.Goal[1]))
-	}
+	cleanMap(client, ctx, goalMap)
 
-	for row, comuns := range goalMap.Goal {
-		for colum, astralType := range comuns {
-			fmt.Println(row, colum, astralType)
+	for row, columns := range goalMap.Goal {
+		for column, astralType := range columns {
+			astralObject := createAstralObject(astralType, row, column)
+			if astralObject != nil {
+				log.Println(row, column, astralType)
+				log.Printf("Astral Object: %+v\n", createAstralObject(astralType, row, column))
+			}
 		}
 	}
 }
@@ -98,13 +99,31 @@ func cleanMap(client *megaverse.Client, ctx context.Context, goalMap *astral.Goa
 }
 
 func createAstralObject(astralType string, row, column int) astral.AstralObject {
+	var attribute string
+
+	if strings.Contains(astralType, "_") {
+		res := strings.Split(astralType, "_")
+		attribute = res[0]
+		astralType = res[1]
+	}
+
 	switch {
 	case astralType == astral.POLYANET:
 		return astral.NewPolyanet(row, column)
 	case strings.Contains(astralType, astral.COMETH):
-		return astral.NewCometh(row, column, astral.Cometh_Right)
+		attr, err := astral.StringToDirectionType(attribute)
+		if err != nil {
+			log.Println("Error gettting attribute from astral object:", astralType, "attribute:", attribute)
+			return nil
+		}
+		return astral.NewCometh(row, column, attr)
 	case strings.Contains(astralType, astral.SOLOON):
-		return astral.NewSoloon(row, column, astral.Soloon_Red)
+		attr, err := astral.StringToColorType(attribute)
+		if err != nil {
+			log.Println("Error gettting attribute from astral object:", astralType, "attribute:", attribute)
+			return nil
+		}
+		return astral.NewSoloon(row, column, attr)
 	default:
 		return nil
 	}
@@ -117,8 +136,6 @@ func executeTests() {
 		fmt.Println("Error creating client:", err)
 	}
 
-	// cli.Astral.Generate(nil) // AstralService.Generate()
-	// megaverse.AstralService.Delete()
 	ctx := context.Background()
 	res, err := client.Astral.GetMap(ctx)
 	if err != nil {
