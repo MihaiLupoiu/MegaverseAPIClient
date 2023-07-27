@@ -33,8 +33,16 @@ test: ### Run tests with coverage
 	go clean -testcache && go test ./... -cover -race
 
 .PHONY: run
-run: build ### Run the service
+run: build ### Run the service test
 	./target/bin/megaverse
+
+.PHONY: run-phase1
+run-phase1: build ### Run the service phase1
+	./target/bin/megaverse -phase=phase1
+
+.PHONY: run-phase2
+run-phase2: build ### Run the service phase2
+	./target/bin/megaverse -phase=phase2
 
 .PHONY: clean
 clean: ### Clean binary artifacts from build

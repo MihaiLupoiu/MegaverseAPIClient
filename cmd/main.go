@@ -2,14 +2,115 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/MihaiLupoiu/MegaverseAPIClient/megaverse"
 	"github.com/MihaiLupoiu/MegaverseAPIClient/megaverse/astral"
 )
 
+// TODO: add option to change the clientID or read from env file.
+const candidateID = "67f01a7f-64e2-4e40-b781-04113f1af7c5"
+
 func main() {
-	candidateID := "67f01a7f-64e2-4e40-b781-04113f1af7c5"
+	phase := flag.String("phase", "test", "Specify the phase (phase1, phase2, or test). Default: test")
+
+	flag.Parse()
+
+	// Check the value of the "phase" flag and execute the corresponding code.
+	switch *phase {
+	case "test":
+		executeTests()
+	case "phase1":
+		executePhase1()
+	case "phase2":
+		executePhase2()
+	default:
+		log.Fatalf("Invalid phase specified: %s. Must be 'phase1', 'phase2', or 'test'", *phase)
+	}
+}
+
+func executePhase1() {
+	client, err := megaverse.NewClient(candidateID, nil)
+	if err != nil {
+		log.Println("Error creating client:", err)
+	}
+
+	ctx := context.Background()
+	goalMap, err := client.Astral.GetGoalMap(ctx)
+	if err != nil {
+		log.Println("Error getting goal map:", err)
+	}
+
+	cleanMap(client, ctx, goalMap)
+
+	for row, columns := range goalMap.Goal {
+		for column, astralType := range columns {
+			astralObject := createAstralObject(astralType, row, column)
+			if astralObject != nil {
+				log.Println(row, column, astralType)
+				err = client.Astral.Generate(ctx, astralObject)
+				if err != nil {
+					log.Println("Error Generating astral object:", err)
+				}
+			} else {
+				client.Astral.Delete(ctx, astral.NewPolyanet(row, column))
+			}
+		}
+	}
+}
+
+func executePhase2() {
+	client, err := megaverse.NewClient(candidateID, nil)
+	if err != nil {
+		fmt.Println("Error creating client:", err)
+	}
+
+	ctx := context.Background()
+	goalMap, err := client.Astral.GetGoalMap(ctx)
+	if err != nil {
+		fmt.Println("Error getting goal map:", err)
+	}
+
+	astralMap := make([][]astral.AstralObject, len(goalMap.Goal))
+	for row := range astralMap {
+		astralMap[row] = make([]astral.AstralObject, len(goalMap.Goal[1]))
+	}
+
+	for row, comuns := range goalMap.Goal {
+		for colum, astralType := range comuns {
+			fmt.Println(row, colum, astralType)
+		}
+	}
+}
+
+func cleanMap(client *megaverse.Client, ctx context.Context, goalMap *astral.GoalMap) {
+	for row, columns := range goalMap.Goal {
+		for column := range columns {
+			err := client.Astral.Delete(ctx, astral.NewPolyanet(row, column))
+			if err != nil {
+				log.Println("Error Deleting astral object:", err)
+			}
+		}
+	}
+}
+
+func createAstralObject(astralType string, row, column int) astral.AstralObject {
+	switch {
+	case astralType == astral.POLYANET:
+		return astral.NewPolyanet(row, column)
+	case strings.Contains(astralType, astral.COMETH):
+		return astral.NewCometh(row, column, astral.Cometh_Right)
+	case strings.Contains(astralType, astral.SOLOON):
+		return astral.NewSoloon(row, column, astral.Soloon_Red)
+	default:
+		return nil
+	}
+}
+
+func executeTests() {
 
 	client, err := megaverse.NewClient(candidateID, nil)
 	if err != nil {
