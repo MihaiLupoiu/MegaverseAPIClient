@@ -44,6 +44,7 @@ func executePhase1() {
 		log.Println("Error getting goal map:", err)
 	}
 
+	// Cleaning map in case test were executed before.
 	cleanMap(client, ctx, goalMap)
 
 	for row, columns := range goalMap.Goal {
@@ -74,7 +75,7 @@ func executePhase2() {
 		fmt.Println("Error getting goal map:", err)
 	}
 
-	// TODO: get my current map to compare with the goal and delete astral object if there should not be anything.
+	// TODO: get my current map to compare with the goal and delete astral object if SPACE.
 	// 	res, err := client.Astral.GetMap(ctx)
 
 	for row, columns := range goalMap.Goal {
@@ -82,7 +83,7 @@ func executePhase2() {
 			astralObject := createAstralObject(astralType, row, column)
 			if astralObject != nil {
 				log.Println(row, column, astralType)
-				log.Printf("Astral Object: %+v\n", createAstralObject(astralType, row, column))
+				log.Printf("Astral Object: %+v\n", astralObject)
 				err = client.Astral.Generate(ctx, astralObject)
 				if err != nil {
 					log.Println("Error Generating astral object:", err)
@@ -135,7 +136,6 @@ func createAstralObject(astralType string, row, column int) astral.AstralObject 
 }
 
 func executeTests() {
-
 	client, err := megaverse.NewClient(candidateID, nil)
 	if err != nil {
 		fmt.Println("Error creating client:", err)
