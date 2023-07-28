@@ -4,6 +4,8 @@
 
 The MegaverseAPIClient is a Go package that provides a client library for interacting with the Megaverse API. The Megaverse is a virtual world where different types of entities, such as Polyanets, Comeths, and Soloons, can be generated and manipulated. This client library allows developers to easily create, retrieve, and delete these entities in the Megaverse using Go code.
 
+More details on the challenge at: https://challenge.crossmint.io/documentation
+
 ## Usage
 
 Help menu for make options:
