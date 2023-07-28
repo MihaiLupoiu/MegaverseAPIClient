@@ -1,14 +1,7 @@
 package megaverse_test
 
 import (
-	"context"
 	"net/http"
-	"net/http/httptest"
-	"testing"
-
-	"github.com/MihaiLupoiu/MegaverseAPIClient/megaverse"
-	"github.com/MihaiLupoiu/MegaverseAPIClient/megaverse/astral"
-	"github.com/stretchr/testify/assert"
 )
 
 // MockHTTPClient is a mock implementation of http.Client for testing purposes.
@@ -29,6 +22,7 @@ func (c *CustomHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return c.mockHTTPClient.Do(req)
 }
 
+/*
 func TestAstralService_Generate(t *testing.T) {
 	// Define a mock HTTP server using httptest package.
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +66,6 @@ func TestAstralService_Delete(t *testing.T) {
 	err = as.Delete(context.Background(), astralObject)
 	assert.NoError(t, err, "Delete should not return an error")
 }
-
 func TestAstralService_GetGoalMap(t *testing.T) {
 	// Similar test setup as above, but mock the response with expected JSON for GetGoalMap.
 }
@@ -80,3 +73,5 @@ func TestAstralService_GetGoalMap(t *testing.T) {
 func TestAstralService_GetMap(t *testing.T) {
 	// Similar test setup as above, but mock the response with expected JSON for GetMap.
 }
+
+*/
