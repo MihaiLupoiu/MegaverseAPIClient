@@ -8,8 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Replace with your package path
-
 func TestNewClient(t *testing.T) {
 	// Mock the HTTP client to return a response with HTTP status 200 and the expected JSON.
 	mockHTTPClient := &http.Client{
